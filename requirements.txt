@@ -1,0 +1,5 @@
+gradio>=6.0
+opencv-python-headless
+numpy
+huggingface_hub
+llama-cpp-python>=0.2.90
