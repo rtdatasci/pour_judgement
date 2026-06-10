@@ -6,6 +6,15 @@ Local-only inference: OpenCV metrics + a small VLM via llama.cpp.
 """
 
 from __future__ import annotations
+import os
+
+# ------------------------ SSL fix: clear cert env vars pointing to missing files
+# (must run before importing gradio/httpx — they read these at import time)
+for _var in ("SSL_CERT_FILE", "SSL_CERT_DIR", "REQUESTS_CA_BUNDLE", "CURL_CA_BUNDLE"):
+    _p = os.environ.get(_var, "")
+    if _p and not os.path.exists(_p):
+        print(f"[app] Clearing {_var} -> file not found: {_p}")
+        os.environ.pop(_var, None)
 
 import gradio as gr
 
@@ -50,16 +59,19 @@ CSS = """
 }
 #go:hover { background: #f3dcbb !important; }
 
-/* The scorecard — signature element */
+/* The scorecard — signature element.
+   Colors are hard-pinned with !important because Gradio's dark theme injects
+   white text into HTML-component children, which made the tip unreadable. */
 .scorecard {
-  background: var(--milk); color: var(--ink); border-radius: 6px;
+  background: var(--milk) !important; color: #2a1e18 !important; border-radius: 6px;
   padding: 28px 30px; position: relative;
   box-shadow: 0 12px 40px rgba(0,0,0,0.45);
   font-family: 'Inter', sans-serif;
 }
+.scorecard * { color: #2a1e18 !important; }
 .scorecard .header {
   font-family: 'Fraunces', serif; font-size: 0.8rem; letter-spacing: 0.18em;
-  text-transform: uppercase; color: #7a6552;
+  text-transform: uppercase; color: #7a6552 !important;
   border-bottom: 1px solid #d9c8b4; padding-bottom: 10px; margin-bottom: 16px;
 }
 .scorecard .pattern {
@@ -68,23 +80,24 @@ CSS = """
 }
 .scorecard .verdict { font-size: 1rem; line-height: 1.55; margin-bottom: 18px; }
 .scorecard .tip {
-  background: #f1e4d2; border-left: 4px solid var(--crema);
+  background: #f1e4d2 !important; border-left: 4px solid #c89a64;
   padding: 12px 14px; border-radius: 0 8px 8px 0; font-size: 0.95rem;
 }
+.scorecard .tip, .scorecard .tip b { color: #4a3526 !important; }
 .scorecard .tip b { font-family: 'Fraunces', serif; }
 .stamp {
   position: absolute; top: 18px; right: 22px; transform: rotate(8deg);
-  border: 3px solid var(--stamp); color: var(--stamp); border-radius: 8px;
+  border: 3px solid var(--stamp); color: var(--stamp) !important; border-radius: 8px;
   font-family: 'Fraunces', serif; font-weight: 900; font-size: 1.9rem;
   padding: 6px 14px; opacity: 0.85;
 }
 .bars { margin-top: 18px; }
 .bar-row { display: flex; align-items: center; gap: 10px; margin: 7px 0; }
 .bar-label { width: 92px; font-size: 0.78rem; letter-spacing: 0.06em;
-  text-transform: uppercase; color: #7a6552; }
-.bar-track { flex: 1; height: 10px; background: #e3d3bd; border-radius: 5px; overflow: hidden; }
-.bar-fill { height: 100%; background: linear-gradient(90deg, #c89a64, #8c5a33); border-radius: 5px; }
-.bar-num { width: 38px; text-align: right; font-size: 0.82rem; font-weight: 600; }
+  text-transform: uppercase; color: #7a6552 !important; }
+.bar-track { flex: 1; height: 10px; background: #e3d3bd !important; border-radius: 5px; overflow: hidden; }
+.bar-fill { height: 100%; background: linear-gradient(90deg, #c89a64, #8c5a33) !important; border-radius: 5px; }
+.bar-num { width: 38px; text-align: right; font-size: 0.82rem; font-weight: 600; color: #2a1e18 !important; }
 .judging { color: var(--crema); font-family: 'Fraunces', serif; font-style: italic;
   text-align: center; font-size: 1.05rem; }
 footer { display: none !important; }
