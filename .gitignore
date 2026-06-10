@@ -12,3 +12,12 @@ __pycache__/
 
 # GGUF model files
 *.gguf
+
+# Output artifacts (images, videos)
+*.jpg
+*.jpeg
+*.png
+*.mp4
+
+# Environment files
+.env
